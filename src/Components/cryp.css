@@ -1,0 +1,32 @@
+
+.table{
+    border-collapse: collapse;
+    width: 78%;
+    margin: auto;
+    text-align: center;
+  }
+
+  h1,
+  h2 {
+    text-align: center;
+  }
+  td,
+  th {
+    padding: 6px;
+  }
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  tr:hover {
+    background-color: #ddd;
+  }
+  
+
+  .navigate{
+      display: flex;
+      width: 250px;
+      margin: auto;
+      justify-content: space-between;
+      padding: 40px 80px;
+  }

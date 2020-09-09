@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import './cryp.css'
 import io from 'socket.io-client'
 
 const socket = io('https://coincap.io', {autoConnect: false});
@@ -16,9 +17,6 @@ class Tables extends Component {
     cryptos : [],
     cryptoToken : {},
     cryptoNameToken : {},
-    mshow: false,
-    isVisible: true,
-    dropdownOpen: false,
     currentPage: 1,
     itemPerPage: 10
     }    
@@ -29,8 +27,17 @@ class Tables extends Component {
    this.setState({
      itemPerPage:value
    })
-
  }
+
+ prevList(e){
+    if(this.state.currentPage !== 1)
+      this.setState({currentPage : this.state.currentPage-1})
+ }
+
+ nextList(e){
+    this.setState({currentPage : this.state.currentPage+1})
+ }
+
  componentDidMount(){
     fetch('https://api.coincap.io/v2/assets?limit=2000')
     .then(res => {return res.json()})
@@ -117,9 +124,24 @@ class Tables extends Component {
    const indexOfLastItem = currentPage * itemPerPage
    const indexOfFirstItem = indexOfLastItem - itemPerPage
    const currentList = this.state.cryptos.slice(indexOfFirstItem,indexOfLastItem)
+   
   return(
-   <div>
-       <table>
+   <div >
+      <div className='navigate'>
+               <button onClick={(e) => this.prevList(e) }> Prev </button>
+               <label>No of Data: </label>
+               <div>
+                  <select onChange =  {(e) => this.changeSize(e) }>
+                      <option defaultValue value = "10"> 10</option>
+                      <option value = "20">20</option>
+                      <option value = "50">50</option>
+                      <option value = "100">100</option>
+                  </select>
+              </div>
+               <button onClick={(e) => this.nextList(e) }> Next</button>
+          </div>
+
+       <table className='table'>
            <thead>
                <th>rank</th> 
                <th>Name</th>
@@ -129,31 +151,27 @@ class Tables extends Component {
                <th>supply</th>
                <th>volumeUsd24Hr</th>
                <th>changePercent24Hr</th>            
-           </thead>
-
+           </thead> 
+           <tbody> 
+                    
                {
                    currentList.map(ele =>{
                        return(
-                        <tbody>
+                        <tr>      
                         <td>{ele.rank}</td> 
                         <td>{ele.name}</td>
-                        <td>{ele.priceUsd}</td>
-                        <td>{ele.marketCapUsd}</td>
-                        <td>{ele.vwap24Hr}</td>
-                        <td>{ele.supply}</td>
-                        <td>{ele.volumeUsd24Hr}</td>
-                        <td>{ele.changePercent24Hr}</td>   
-                        </tbody>
+                        <td>{(Math.round( ele.priceUsd * 100) / 100).toFixed(4)}</td>
+                        <td>{(Math.round( ele.marketCapUsd * 100) / 100).toFixed(4)}</td>
+                        <td>{(Math.round(ele.vwap24Hr * 100) / 100).toFixed(3)}</td>
+                        <td>{(Math.round( ele.supply * 100) / 100).toFixed(2)}</td>
+                        <td>{(Math.round( ele.volumeUsd24Hr * 100) / 100).toFixed(3)}</td>
+                        <td>{(Math.round( ele.changePercent24Hr * 100) / 100).toFixed(3)}</td>
+                        </tr>
                        )
                    })
                }
-       </table>
-          <select ref = 'size' onChange =  {(e) => this.changeSize(e) }>
-               <option selected value = "10"> 10</option>
-               <option value = "20">20</option>
-               <option value = "50">50</option>
-               <option value = "100">100</option>
-          </select>
+               </tbody>
+       </table> 
    </div>
     )
    }
