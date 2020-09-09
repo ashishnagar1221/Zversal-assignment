@@ -19,52 +19,18 @@ class Tables extends Component {
     mshow: false,
     isVisible: true,
     dropdownOpen: false,
-    swapData:{
-      fromCoins: [
-        {
-           text: "Blackcoin",
-           value: "BLK",
-           image: "https://shapeshift.io/images/coins-sm/blackcoin.png"
-        },
-        {
-          text: "BitcoinCash",
-          value: "BCH",
-          image: "https://shapeshift.io/images/coins-sm/bitcoincash.png"
-        }
-      ],
-      toCoins: [
-        {
-           text: "Blackcoin",
-           value: "BLK",
-           image: "https://shapeshift.io/images/coins-sm/blackcoin.png"
-        },
-        {
-          text: "BitcoinCash",
-          value: "BCH",
-          image: "https://shapeshift.io/images/coins-sm/bitcoincash.png"
-        }
-      ],
-      fromCoin: {
-         text: "Blackcoin",
-         value: "BLK",
-         image: "https://shapeshift.io/images/coins-sm/blackcoin.png"
-      },
-      toCoin: {
-        text: "BitcoinCash",
-        value: "BCH",
-        image: "https://shapeshift.io/images/coins-sm/bitcoincash.png"
-      },
-      fromOpen: false,
-      toOpen: false,
-      rate:'1.000000',
-      minerFee:'0.001123',
-      minLimit:'1.000000',
-      maxLimit:'10.000000',
-      error: '',
-    }
+    currentPage: 1,
+    itemPerPage: 10
     }    
  }
 
+ changeSize(e) {
+   let value = e.target.value
+   this.setState({
+     itemPerPage:value
+   })
+
+ }
  componentDidMount(){
     fetch('https://api.coincap.io/v2/assets?limit=2000')
     .then(res => {return res.json()})
@@ -99,10 +65,8 @@ class Tables extends Component {
               cryptos[index]['marketCapUsd'] = stream.msg.mktcap;
               cryptos[index]['vwap24Hr'] = stream.msg.vwapData;
               cryptos[index]['supply'] = stream.msg.supply;
-              //cryptos[index]['volumeUsd24Hr'] = stream.msg.volume;
               var perc_bef = parseFloat(cryptos[index]['changePercent24Hr']);
               var perc_now = parseFloat(stream.msg.cap24hrChange);
-              //cryptos[index]['blink'] = (perc_now >= perc_bef) ? 'do-green' : 'do-red';
               cryptos[index]['changePercent24Hr'] = isNaN(perc_now) ? cryptos[index]['changePercent24Hr'] : perc_now;
             }
          });
@@ -115,7 +79,6 @@ class Tables extends Component {
               let index = cryptoNameToken[nameKey];
               let price_bef = parseFloat(cryptos[index].priceUsd);
               let price_now = price;
-              //cryptos[index]['blink'] = (price_now >= price_bef) ? 'do-green' : 'do-red';
               cryptos[index].priceUsd = price;
             }
           }
@@ -145,12 +108,15 @@ class Tables extends Component {
         });
         setTimeout(() => {
           this.setState({cryptos});
-        }, 1000);
+        },1000);
       }
     
  render() {
-    console.log(this.state)
-    
+   const {currentPage, itemPerPage } = this.state
+
+   const indexOfLastItem = currentPage * itemPerPage
+   const indexOfFirstItem = indexOfLastItem - itemPerPage
+   const currentList = this.state.cryptos.slice(indexOfFirstItem,indexOfLastItem)
   return(
    <div>
        <table>
@@ -166,7 +132,7 @@ class Tables extends Component {
            </thead>
 
                {
-                   this.state.cryptos.map(ele =>{
+                   currentList.map(ele =>{
                        return(
                         <tbody>
                         <td>{ele.rank}</td> 
@@ -182,6 +148,12 @@ class Tables extends Component {
                    })
                }
        </table>
+          <select ref = 'size' onChange =  {(e) => this.changeSize(e) }>
+               <option selected value = "10"> 10</option>
+               <option value = "20">20</option>
+               <option value = "50">50</option>
+               <option value = "100">100</option>
+          </select>
    </div>
     )
    }
